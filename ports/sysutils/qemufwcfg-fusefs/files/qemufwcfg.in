@@ -1,0 +1,26 @@
+#!/bin/sh 
+
+# PROVIDE: qemufwcfg
+# REQUIRE: ldconfig
+
+. /etc/rc.subr 
+
+name="qemufwcfg" 
+start_cmd="${name}_start" 
+stop_cmd="${name}_stop" 
+qemufwcfg_mount_path="/var/run/qemufwcfg"
+
+qemufwcfg_start() 
+{
+	kldload qemufwcfg
+	%%LOCALBASE%%/bin/mount_qemufwcfg ${qemufwcfg_mount_path}
+}
+
+qemufwcfg_stop() 
+{
+	pkill -9 mount_qemufwcfg
+	kldunload qemufwcfg
+}
+
+load_rc_config $name 
+run_rc_command "$1" 

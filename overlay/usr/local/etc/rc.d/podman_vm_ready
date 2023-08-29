@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# After the podman service is booted, let the host VM know.
+
+# PROVIDE: podman_vm_ready
+# REQUIRE: podman_service
+
+. /etc/rc.subr
+
+name="podman_vm_ready"
+desc="Notify the host that this VM is ready"
+start_cmd="podman_vm_ready_start"
+rcvar="podman_vm_ready_enable"
+
+podman_vm_ready_start()
+{
+	echo Ready >> /dev/vtcon/org.fedoraproject.port.0
+}
+
+load_rc_config $name
+run_rc_command "$1"
+

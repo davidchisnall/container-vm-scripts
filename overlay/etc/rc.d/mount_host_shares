@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# PROVIDE: virtfs_shares
+# REQUIRE: FILESYSTEMS
+# BEFORE: podman_service
+
+name="mount_host_shares"
+desc="Mount all 9pfs shares from the host"
+start_cmd="mount_host_shares_start"
+rcvar="mount_host_shares_enable"
+
+. /etc/rc.subr
+
+mount_host_shares_start()
+{
+	local i=0 local share_name mount_name
+	# Try increasing device numbers until sysctl fails
+	while share_name=$(sysctl -qn dev.virtio_p9fs.${i}.p9fs_mount_tag); do
+		# If the name starts with a /, assume it's our intended mount location,
+		# if not then mount it inside the /host directory.
+		if [ $(echo $share_name | cut -c1) = "/" ]; then
+			mount_name=$share_name
+		else
+			mount_name=/host/$share_name
+		fi
+
+		mkdir -p $mount_name
+
+		echo "Mounting host share $share_name on $mount_name"
+		mount -t p9fs $share_name $mount_name
+
+		i=$(expr $i + 1)
+	done
+}
+
+load_rc_config $name
+run_rc_command "$1"
+

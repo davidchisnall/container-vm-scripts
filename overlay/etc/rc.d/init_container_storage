@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# On first boot, create the ZFS filesystem to store containers.
+
+# PROVIDE: podman_storage
+# REQUIRE: zfs
+# BEFORE: podman_service
+# KEYWORD: firstboot
+
+. /etc/rc.subr
+
+name="init_container_storage"
+desc="Create the ZFS filesystem for container storage"
+start_cmd="init_container_storage_start"
+rcvar="init_container_storage_enable"
+
+init_container_storage_start()
+{
+	echo "Created ZFS storage for containers"
+	zfs create -o mountpoint=/var/db/containers zroot/containers
+	# Quick hack to put the podman socket where podman remote expects it to be.
+	# Note: In theory, podman allows you to specify this location.  In
+	# practice, that doesn't seem to work and it always uses the default
+	# location.
+	echo "Creating symlink for container socket"
+	mkdir -p /run/podman
+	ln -s /var/run/podman/podman.sock /run/podman/
+}
+
+load_rc_config $name
+run_rc_command "$1"
+

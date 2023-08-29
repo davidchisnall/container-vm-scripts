@@ -1,0 +1,4 @@
+bin/mount_qemufwcfg
+share/man/man8/mount_qemufwcfg.8.gz
+@dir /var/run/qemufwcfg
+
