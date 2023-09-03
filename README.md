@@ -18,8 +18,6 @@ The VM image can be loaded by `podman machine init`:
        This is currently done using a hack to symlink the socket to where Podman expects it.
        Eventually, podman should be taught to look in the right place.
  - [X] `podman container` and `podman image` commands work.
- - [ ] Accessing host filesystems from the container works.
-       This is currently blocked on not mounting these where Podman expects them to be.
  - [ ] Test on x86-64.
        Currently tested only on AArch64 ('Apple silicon').
 
