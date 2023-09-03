@@ -12,10 +12,7 @@ The VM image can be loaded by `podman machine init`:
  - [X] SSH keys are provisioned.
  - [X] The network is set up, podman is able to ssh into the guest.
  - [X] Host filesystems are mounted.
- - [ ] Host filesystems are mounted in the right place.
-       Podman expects to ssh into the vm and run Linux-specific commands to mount filesystems.
-       We currently mount them in a location identified by the mount tag, unfortunately Podman does not set the mount tag to anything sensible.
-       The simplest fix is probably to make the ssh bit optional, put the mount path in the mount tag, and then the existing code will just work.
+       Note: This requires a some Podman bits that are not yet upstream.
  - [X] Podman service runs in the guest.
  - [X] Podman can connect to the service in the guest.
        This is currently done using a hack to symlink the socket to where Podman expects it.
@@ -31,6 +28,11 @@ This does not prevent containers from including a full FreeBSD base system image
 
 Using
 -----
+
+This can currently be used with unmodified podman with host mounts not working.
+For host mounts to work, you the [freebsd-guest-vm branch of this repo](https://github.com/davidchisnall/podman/), which has not (yet) been upstreamed.
+
+### Building the VM
 
 The `build-container-vm.sh` expects to run as root and should be run on -CURRENT.
 You can download VM images for -CURRENT from the FreeBSD project, they work well with UTM.
@@ -65,6 +67,46 @@ If you want to debug the VM edit `.config/containers/podman/machine/qemu/freebsd
 Note that some qemu command-line options are split over multiple arguments.
 Inserting this before the `-fw_cfg` line is safe.
 This will allow you to connect to the console of the VM with `nc localhost 4444`.
+
+### Using the custom podman branch
+
+This has been tested only on macOS, but might work on other platforms that use QEMU to host VMs.
+
+Clone the branch and build podman remote:
+
+```
+$ git clone -b freebsd-guest-vm https://github.com/davidchisnall/podman
+$ cd podman
+$ make podman-remote
+$ mv bin/darwin/podman {somewhere in your path}
+```
+
+This requires a working Go toolchain and GNU coreutils, both of which can be installed from homebrew.
+Copying podman into your path is optional, feel free to invoke it from there.
+This branch adds a `--machine-os` flag to `podman machine init`, which lets it behave differently for different guest types.
+
+```
+$ podman machine init --cpus $(sysctl -n hw.ncpu) --image-path podmanvm.img --rootful --machine-os freebsd  freebsd
+$ podman machine start freebsd
+$ podman system connection default freebsd-root
+```
+
+You can now run FreeBSD containers, and they can have access to your host system:
+
+```
+$ podman pull docker.io/dougrabson/freebsd13.2-minimal
+$ podman container run --mount type=bind,src=/Users/${LOGNAME},target=/home/${LOGNAME} --rm -t  freebsd13.2-minimal ls /home/${LOGNAME}
+```
+
+This should print the contents of your macOS home directory.
+You can confirm that this is a FreeBSD 13.2 container running on a FreeBSD 15.0-CURRENT kernel:
+
+```
+$ podman container run --rm   freebsd13.2-minimal uname -mrs
+FreeBSD 15.0-CURRENT arm64
+$ podman container run --rm   freebsd13.2-minimal freebsd-version
+13.2-RELEASE-p2
+```
 
 Future plans
 ------------
