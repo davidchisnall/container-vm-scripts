@@ -1,0 +1,17 @@
+build_image_task:
+  compute_engine_instance:
+    image_project: freebsd-org-cloud-dev
+    image: family/freebsd-15-0-current-arm64
+    platform: freebsd
+    architecture: arm64
+    cpu: 8
+    memory: 16G
+    disk: 100
+
+  
+  install_dependencies_script:
+    - pkg ins --yes poudriere-devel
+    - echo "ALLOW_MAKE_JOBS=yes" >> /usr/local/etc/poudriere.conf
+    - echo 'PRIORITY_BOOST="llvm* rust chromium"' >> /usr/local/etc/poudriere.conf
+    - zpool list
+
