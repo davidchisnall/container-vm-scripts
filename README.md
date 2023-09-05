@@ -34,7 +34,7 @@ For host mounts to work, you the [freebsd-guest-vm branch of this repo](https://
 
 The `build-container-vm.sh` expects to run as root and should be run on -CURRENT.
 You can download VM images for -CURRENT from the FreeBSD project, they work well with UTM.
-It will uses `poudrierer` to build the image.
+It will use `poudriere` to build the image.
 Poudriere works much better on ZFS, so using one of these as the base is a good idea.
 
 The script runs the following steps:
