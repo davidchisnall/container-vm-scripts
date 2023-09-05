@@ -135,7 +135,5 @@ We currently provide an entire `sshd_config` to permit root login.
 This would be better to do this modification later or we risk failing to pick up changes to the defaults.
 Root login via ssh is safe here because the Podman does not expose the SSH login port except to the owner of the VM.
 
-It's weird having an `rc.conf` for a single thing when everything else is in `rc.conf.d` but I can't work out how to do the `ifconfig` bits with `rc.conf.d`.
-
 The VM is built from -CURRENT at the moment so that containers for -CURRENT and any -RELEASE should work.
 At some point, it's probably a good idea to default to building from 14.0 since most users probably don't want to run -CURRENT containers and there's less chance of breakage.
