@@ -20,15 +20,15 @@ create_accounts_from_ignition_start()
 {
 	local count jq username uid keys uidflag home I
 	echo "Creating accounts and provisioning SSH keys from ignition"
-	jq="/usr/local/bin/jq < ${create_accounts_from_ignition_ignition_path}"
-	count=$(/usr/local/bin/jq < ${create_accounts_from_ignition_ignition_path} -r '.passwd.users | length')
+	jq="/usr/local/bin/jq"
+	count=$(${jq} < ${create_accounts_from_ignition_ignition_path} -r '.passwd.users | length')
 	for I in $(seq 0 $(expr ${count} - 1)) ; do
-		username=$(/usr/local/bin/jq < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].name")
+		username=$(${jq} < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].name")
 		if [ -n "${username}" ] ; then
 			if id ${username} >/dev/null 2>&1 ; then 
 				echo ${username} already exists, not creating.
 			else
-				uid=$(/usr/local/bin/jq < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].uid")
+				uid=$(${jq} < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].uid")
 				uidflag=$(if [ ${uid} = "null" ] ; then echo "" ; else echo "-u ${uid}" ; fi)
 				# Create the account.  If any UID is specified, use it.  Disable
 				# password auth (these users will just be used via ssh).  Add the
@@ -39,15 +39,15 @@ create_accounts_from_ignition_start()
 			home=$(eval echo ~${username})
 			echo Installed ssh keys for ${username} to ${home}/.ssh/authorized_keys
 			mkdir -p ${home}/.ssh
-			/usr/local/bin/jq < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].sshAuthorizedKeys | values[]"
-			/usr/local/bin/jq < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].sshAuthorizedKeys | values[]" >> ${home}/.ssh/authorized_keys
+			${jq} < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].sshAuthorizedKeys | values[]"
+			${jq} < ${create_accounts_from_ignition_ignition_path} -r ".passwd.users[${I}].sshAuthorizedKeys | values[]" >> ${home}/.ssh/authorized_keys
 			chown ${username} ${home}/.ssh/authorized_keys
 			chmod 600 ${home}/.ssh/authorized_keys
 			chown ${username} ${home}/.ssh
 			chmod 700 ${home}/.ssh
 		else
 			echo "Invalid user description in Ignition file:"
-			/usr/local/bin/jq < ${create_accounts_from_ignition_ignition_path} ".passwd.users[${I}]"
+			${jq} < ${create_accounts_from_ignition_ignition_path} ".passwd.users[${I}]"
 		fi
 	done
 }
