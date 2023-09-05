@@ -9,7 +9,7 @@ JAILNAME=podman-vm-jail
 PORTSNAME=podmanvmports
 OVERLAYNAME=podmanvmpatches
 SCRIPTPATH=$(realpath $(dirname $0))
-echo Scriot source: ${SCRIPTPATH}
+echo Script source: ${SCRIPTPATH}
 
 if [ ! -d freebsd-src ] ; then
 	echo Cloning FreeBSD source
