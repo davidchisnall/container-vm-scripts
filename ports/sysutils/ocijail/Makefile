@@ -1,5 +1,6 @@
 PORTNAME=	ocijail
 DISTVERSION=	0.2.0
+PORTREVISION=	1
 CATEGORIES=	sysutils
 
 MAINTAINER=	dfr@FreeBSD.org
@@ -12,7 +13,7 @@ IGNORE_FreeBSD_12= Not supported on FreeBSD 12 (uses c++20)
 
 USE_GITHUB=	yes
 GH_ACCOUNT=	davidchisnall
-GH_TAGNAME=	824f885
+GH_TAGNAME=	bad3a82
 
 
 PLIST_FILES=	bin/ocijail
